@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swibbi | Sociaal Netwerk 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glassmorphism {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .news-ticker {
+            animation: ticker 20s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .post-image {
+            transition: transform 0.3s ease;
+        }
+        .post-image:hover {
+            transform: scale(1.03);
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .language-flag {
+            width: 20px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 5px;
+            background-size: cover;
+            border-radius: 2px;
+        }
+        #be-flag {
+            background-image: url('https://flagcdn.com/be.svg');
+        }
+        #nl-flag {
+            background-image: url('https://flagcdn.com/nl.svg');
+        }
+        #gb-flag {
+            background-image: url('https://flagcdn.com/gb.svg');
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glassmorphism shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-comment-dots text-2xl text-primary-500"></i>
+                <h1 class="text-xl font-bold">Swibbi</h1>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-4">
+                <!-- Language Selector -->
+                <div class="relative group">
+                    <button id="language-toggle" class="flex items-center px-3 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <span id="current-flag" class="language-flag" style="background-image: url('https://flagcdn.com/nl.svg')"></span>
+                        <span id="current-lang" class="text-sm">NL</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div id="language-menu" class="hidden group-hover:block absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                        <button onclick="changeLanguage('nl')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                            <span id="nl-flag" class="language-flag"></span>
+                            <span>Nederlands</span>
+                        </button>
+                        <button onclick="changeLanguage('be')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                            <span id="be-flag" class="language-flag"></span>
+                            <span>België</span>
+                        </button>
+                        <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                            <span id="gb-flag" class="language-flag"></span>
+                            <span>English</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:inline"></i>
+                </button>
+                <div class="relative">
+                    <button id="notification-button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 relative">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-count" class="notification-badge">3</span>
+                    </button>
+                    <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                        <div class="px-4 py-2 border-b dark:border-gray-700">
+                            <h3 class="font-semibold">Meldingen</h3>
+                        </div>
+                        <div id="notification-list" class="max-h-96 overflow-y-auto">
+                            <!-- Notifications will be added here by JavaScript -->
+                        </div>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 border-t dark:border-gray-700">Alle meldingen bekijken</a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profiel" class="w-8 h-8 rounded-full cursor-pointer" id="profile-menu-button">
+                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Profiel</a>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Instellingen</a>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Admin Dashboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Uitloggen</a>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- News Ticker -->
+        <div class="bg-primary-600 text-white py-2 overflow-hidden">
+            <div class="whitespace-nowrap news-ticker">
+                <span class="mx-4">🔥 Populair: #SwibbiLancering</span>
+                <span class="mx-4">📢 Nieuwe functie: Donkere modus nu beschikbaar!</span>
+                <span class="mx-4">🎉 Welkom aan onze nieuwste leden: @johndoe, @janedoe</span>
+                <span class="mx-4">⚠️ Onderhoud gepland voor morgen om 3 uur</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu (hidden by default) -->
+    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-black bg-opacity-50">
+        <div class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg">
+            <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-lg font-semibold">Menu</h2>
+                <button id="close-mobile-menu" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <a href="#" class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-home mr-3"></i> Home
+                </a>
+                <a href="#" class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-users mr-3"></i> Vrienden
+                </a>
+                <a href="#" class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+                    <i class="fas fa-bell mr-3"></i> Meldingen
+                    <span class="notification-badge">3</span>
+                </a>
+                <a href="#" class="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-user mr-3"></i> Profiel
+                </a>
+                <div class="pt-4 border-t dark:border-gray-700">
+                    <button onclick="changeLanguage('nl')" class="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                        <span id="nl-flag-mobile" class="language-flag"></span>
+                        <span>Nederlands</span>
+                    </button>
+                    <button onclick="changeLanguage('be')" class="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                        <span id="be-flag-mobile" class="language-flag"></span>
+                        <span>België</span>
+                    </button>
+                    <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                        <span id="gb-flag-mobile" class="language-flag"></span>
+                        <span>English</span>
+                    </button>
+                </div>
+                <div class="pt-4 border-t dark:border-gray-700">
+                    <button id="theme-toggle-mobile" class="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                        <i class="fas fa-moon dark:hidden mr-3"></i>
+                        <i class="fas fa-sun hidden dark:inline mr-3"></i>
+                        <span>Donker thema</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+        <!-- Left Sidebar -->
+        <aside class="w-full md:w-1/4 lg:w-1/5 space-y-6">
+            <div class="glassmorphism rounded-lg p-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profiel" class="w-12 h-12 rounded-full">
+                    <div>
+                        <h3 class="font-semibold">Sarah Johnson</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@sarahj</p>
+                    </div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">245</span> Berichten
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">1.2K</span> Vrienden
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">5.7K</span> Likes
+                    </div>
+                </div>
+                <button id="new-post-button" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-medium transition">
+                    <i class="fas fa-plus mr-1"></i> Nieuw bericht
+                </button>
+            </div>
+            
+            <div class="glassmorphism rounded-lg p-4">
+                <h3 class="font-semibold mb-3 flex items-center">
+                    <i class="fas fa-users mr-2 text-primary-500"></i> Vrienden
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Vriend" class="w-8 h-8 rounded-full">
+                        <span class="text-sm">Michael Brown</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Vriend" class="w-8 h-8 rounded-full">
+                        <span class="text-sm">Emily Davis</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Vriend" class="w-8 h-8 rounded-full">
+                        <span class="text-sm">Robert Wilson</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://randomuser.me/api/portraits/women/90.jpg" alt="Vriend" class="w-8 h-8 rounded-full">
+                        <span class="text-sm">Jessica Martinez</span>
+                    </div>
+                </div>
+                <button class="w-full mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium">
+                    Alle vrienden bekijken
+                </button>
+            </div>
+            
+            <div class="glassmorphism rounded-lg p-4">
+                <h3 class="font-semibold mb-3 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-primary-500"></i> Evenementen
+                </h3>
+                <div class="space-y-3">
+                    <div class="text-sm">
+                        <div class="font-medium">Swibbi Lancering Feest</div>
+                        <div class="text-gray-500 dark:text-gray-400">Morgen, 19:00</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-medium">Tech Meetup</div>
+                        <div class="text-gray-500 dark:text-gray-400">15 juni, 18:30</div>
+                    </div>
+                </div>
+                <button class="w-full mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium">
+                    Evenement aanmaken
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Feed -->
+        <section class="w-full md:w-2/4 lg:w-3/5 space-y-6">
+            <!-- Create Post -->
+            <div id="new-post-form" class="glassmorphism rounded-lg p-4 hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold">Nieuw bericht maken</h3>
+                    <button id="close-new-post" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3 mb-3">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profiel" class="w-10 h-10 rounded-full">
+                    <textarea placeholder="Waar denk je aan?" class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 h-20 resize-none"></textarea>
+                </div>
+                <div id="post-preview" class="mb-3 hidden">
+                    <!-- Preview of selected media will appear here -->
+                </div>
+                <div class="flex justify-between border-t dark:border-gray-700 pt-3">
+                    <label class="flex items-center text-gray-500 dark:text-gray-400 hover:text-primary-500 px-3 py-1 rounded cursor-pointer">
+                        <i class="fas fa-image mr-2"></i> Foto
+                        <input type="file" accept="image/*" class="hidden">
+                    </label>
+                    <label class="flex items-center text-gray-500 dark:text-gray-400 hover:text-primary-500 px-3 py-1 rounded cursor-pointer">
+                        <i class="fas fa-video mr-2"></i> Video
+                        <input type="file" accept="video/*" class="hidden">
+                    </label>
+                    <button class="flex items-center text-gray-500 dark:text-gray-400 hover:text-primary-500 px-3 py-1 rounded">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Locatie
+                    </button>
+                    <button class="flex items-center text-gray-500 dark:text-gray-400 hover:text-primary-500 px-3 py-1 rounded">
+                        <i class="fas fa-smile mr-2"></i> Gevoel
+                    </button>
+                </div>
+                <button class="w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-medium transition">
+                    Bericht plaatsen
+                </button>
+            </div>
+            
+            <!-- Post -->
+            <div class="glassmorphism rounded-lg overflow-hidden">
+                <div class="p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profiel" class="w-10 h-10 rounded-full">
+                            <div>
+                                <h3 class="font-semibold">Michael Brown</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">2 uur geleden · <i class="fas fa-globe-americas"></i></p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="my-3">
+                        <p>Net de nieuwe kunsttentoonstelling in het centrum bezocht. De moderne kunstwerken waren absoluut prachtig! 🎨✨ #KunstLiefhebber #WeekendVibes</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-1 my-2 rounded-lg overflow-hidden">
+                        <img src="https://source.unsplash.com/random/600x400/?art" alt="Bericht" class="w-full h-48 object-cover post-image">
+                        <img src="https://source.unsplash.com/random/600x400/?gallery" alt="Bericht" class="w-full h-48 object-cover post-image">
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mt-3">
+                        <div class="flex items-center space-x-1">
+                            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                            <span>124</span>
+                        </div>
+                        <div>
+                            <span>23 reacties · 5 keer gedeeld</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t dark:border-gray-700 mt-3 pt-3 flex justify-between">
+                        <button class="post-like flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-thumbs-up mr-2"></i> Vind ik leuk
+                        </button>
+                        <button class="post-comment flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-comment mr-2"></i> Reageer
+                        </button>
+                        <button class="post-share flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-share mr-2"></i> Deel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Comments -->
+                <div id="comments-section" class="bg-gray-50 dark:bg-gray-800 p-4 border-t dark:border-gray-700 hidden">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profiel" class="w-8 h-8 rounded-full">
+                        <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1">
+                            <input type="text" placeholder="Schrijf een reactie..." class="w-full bg-transparent focus:outline-none text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex space-x-2">
+                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Profiel" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 text-sm">
+                                <div class="font-semibold">Emily Davis</div>
+                                <p>Ziet er geweldig uit! In welke galerie was dit?</p>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <span>1 uur geleden</span>
+                                    <span class="ml-2 font-medium cursor-pointer hover:text-primary-500">Like</span>
+                                    <span class="ml-2 font-medium cursor-pointer hover:text-primary-500">Antwoorden</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profiel" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 text-sm">
+                                <div class="font-semibold">Michael Brown</div>
+                                <p>@Emily Davis Het is de Moderne Kunst Galerie op 5th Avenue. Je moet echt gaan kijken!</p>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <span>30 minuten geleden</span>
+                                    <span class="ml-2 font-medium cursor-pointer hover:text-primary-500">Like</span>
+                                    <span class="ml-2 font-medium cursor-pointer hover:text-primary-500">Antwoorden</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Another Post -->
+            <div class="glassmorphism rounded-lg overflow-hidden">
+                <div class="p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://randomuser.me/api/portraits/women/90.jpg" alt="Profiel" class="w-10 h-10 rounded-full">
+                            <div>
+                                <h3 class="font-semibold">Jessica Martinez</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">5 uur geleden · <i class="fas fa-user-friends"></i></p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="my-3">
+                        <p>Net klaar met lezen van "Atomic Habits" van James Clear. Een aanrader voor iedereen die betere gewoontes wil ontwikkelen en slechte wil afleren! Wat lezen jullie tegenwoordig? 📚 #BoekenWurm #ZelfVerbetering</p>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mt-3">
+                        <div class="flex items-center space-x-1">
+                            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                            <span>89</span>
+                        </div>
+                        <div>
+                            <span>15 reacties · 2 keer gedeeld</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t dark:border-gray-700 mt-3 pt-3 flex justify-between">
+                        <button class="post-like flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-thumbs-up mr-2"></i> Vind ik leuk
+                        </button>
+                        <button class="post-comment flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-comment mr-2"></i> Reageer
+                        </button>
+                        <button class="post-share flex items-center justify-center w-1/3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-share mr-2"></i> Deel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Comments (hidden by default) -->
+                <div class="bg-gray-50 dark:bg-gray-800 p-4 border-t dark:border-gray-700 hidden">
+                    <!-- Comment form and comments would go here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Right Sidebar -->
+        <aside class="w-full md:w-1/4 lg:w-1/5 space-y-6">
+            <div class="glassmorphism rounded-lg p-4">
+                <h3 class="font-semibold mb-3 flex items-center">
+                    <i class="fas fa-bell mr-2 text-primary-500"></i> Meldingen
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-500">
+                            <i class="fas fa-user-plus text-sm"></i>
+                        </div>
+                        <div class="text-sm">
+                            <p><span class="font-semibold">Robert Wilson</span> heeft je een vriendschapsverzoek gestuurd</p>
+                            <div class="flex space-x-2 mt-1">
+                                <button class="accept-friend text-xs bg-primary-500 hover:bg-primary-600 text-white px-2 py-1 rounded">Accepteren</button>
+                                <button class="decline-friend text-xs bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-2 py-1 rounded">Weigeren</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-500">
+                            <i class="fas fa-comment text-sm"></i>
+                        </div>
+                        <div class="text-sm">
+                            <p><span class="font-semibold">Emily Davis</span> heeft gereageerd op je bericht</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">"Ziet er geweldig uit! In welke galerie was dit?"</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-500">
+                            <i class="fas fa-thumbs-up text-sm"></i>
+                        </div>
+                        <div class="text-sm">
+                            <p><span class="font-semibold">Michael Brown</span> en <span class="font-semibold">3 anderen</span> vinden je foto leuk</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium">
+                    Alle meldingen bekijken
+                </button>
+            </div>
+            
+            <div class="glassmorphism rounded-lg p-4">
+                <h3 class="font-semibold mb-3 flex items-center">
+                    <i class="fas fa-hashtag mr-2 text-primary-500"></i> Populair nu
+                </h3>
+                <div class="space-y-3">
+                    <div class="text-sm">
+                        <div class="font-semibold text-primary-500">#SwibbiLancering</div>
+                        <div class="text-gray-500 dark:text-gray-400">1.2K berichten</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-primary-500">#Tech2025</div>
+                        <div class="text-gray-500 dark:text-gray-400">856 berichten</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-primary-500">#ZomerVibes</div>
+                        <div class="text-gray-500 dark:text-gray-400">723 berichten</div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-semibold text-primary-500">#BoekAanraders</div>
+                        <div class="text-gray-500 dark:text-gray-400">415 berichten</div>
+                    </div>
+                </div>
+                <button class="w-full mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium">
+                    Meer trends bekijken
+                </button>
+            </div>
+            
+            <div class="glassmorphism rounded-lg p-4">
+                <h3 class="font-semibold mb-3 flex items-center">
+                    <i class="fas fa-users mr-2 text-primary-500"></i> Groepen
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="text-sm">
+                            <div class="font-medium">Boekenliefhebbers Club</div>
+                            <div class="text-gray-500 dark:text-gray-400">245 leden</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center text-white">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="text-sm">
+                            <div class="font-medium">Tech Enthousiastelingen</div>
+                            <div class="text-gray-500 dark:text-gray-400">1.2K leden</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center text-white">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="text-sm">
+                            <div class="font-medium">Fotografie Experts</div>
+                            <div class="text-gray-500 dark:text-gray-400">587 leden</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium">
+                    Groepen ontdekken
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg border-t dark:border-gray-700 flex justify-around py-3 z-40">
+        <button class="flex flex-col items-center text-primary-500">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-xs mt-1">Home</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-500 dark:text-gray-400">
+            <i class="fas fa-users text-lg"></i>
+            <span class="text-xs mt-1">Vrienden</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-500 dark:text-gray-400 relative">
+            <i class="fas fa-bell text-lg"></i>
+            <span class="notification-badge">3</span>
+            <span class="text-xs mt-1">Meldingen</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-500 dark:text-gray-400">
+            <i class="fas fa-user text-lg"></i>
+            <span class="text-xs mt-1">Profiel</span>
+        </button>
+    </div>
+
+    <script>
+        // Current language (default is Dutch)
+        let currentLanguage = 'nl';
+        
+        // Translations
+        const translations = {
+            'nl': {
+                'title': 'Swibbi | Sociaal Netwerk 2025',
+                'home': 'Home',
+                'friends': 'Vrienden',
+                'notifications': 'Meldingen',
+                'profile': 'Profiel',
+                'newPost': 'Nieuw bericht',
+                'trending': 'Populair',
+                'groups': 'Groepen',
+                'events': 'Evenementen',
+                'whatsOnYourMind': 'Waar denk je aan?',
+                'photo': 'Foto',
+                'video': 'Video',
+                'location': 'Locatie',
+                'feeling': 'Gevoel',
+                'like': 'Vind ik leuk',
+                'comment': 'Reageer',
+                'share': 'Deel',
+                'viewAll': 'Alles bekijken',
+                'create': 'Aanmaken',
+                'discover': 'Ontdekken',
+                'accept': 'Accepteren',
+                'decline': 'Weigeren',
+                'seeMore': 'Meer bekijken',
+                'notificationsTitle': 'Meldingen',
+                'viewAllNotifications': 'Alle meldingen bekijken',
+                'newPostTitle': 'Nieuw bericht maken',
+                'post': 'Bericht plaatsen',
+                'writeComment': 'Schrijf een reactie...',
+                'reply': 'Antwoorden'
+            },
+            'be': {
+                'title': 'Swibbi | Sociaal Netwerk 2025',
+                'home': 'Home',
+                'friends': 'Vrienden',
+                'notifications': 'Meldingen',
+                'profile': 'Profiel',
+                'newPost': 'Nieuw bericht',
+                'trending': 'Populair',
+                'groups': 'Groepen',
+                'events': 'Evenementen',
+                'whatsOnYourMind': 'Waar denkt ge aan?',
+                'photo': 'Foto',
+                'video': 'Video',
+                'location': 'Locatie',
+                'feeling': 'Gevoel',
+                'like': 'Vind ik leuk',
+                'comment': 'Reageer',
+                'share': 'Deel',
+                'viewAll': 'Alles bekijken',
+                'create': 'Aanmaken',
+                'discover': 'Ontdekken',
+                'accept': 'Accepteren',
+                'decline': 'Weigeren',
+                'seeMore': 'Meer bekijken',
+                'notificationsTitle': 'Meldingen',
+                'viewAllNotifications': 'Alle meldingen bekijken',
+                'newPostTitle': 'Nieuw bericht maken',
+                'post': 'Bericht plaatsen',
+                'writeComment': 'Schrijf een reactie...',
+                'reply': 'Antwoorden'
+            },
+            'en': {
+                'title': 'Swibbi | Social Network 2025',
+                'home': 'Home',
+                'friends': 'Friends',
+                'notifications': 'Notifications',
+                'profile': 'Profile',
+                'newPost': 'New Post',
+                'trending': 'Trending',
+                'groups': 'Groups',
+                'events': 'Events',
+                'whatsOnYourMind': "What's on your mind?",
+                'photo': 'Photo',
+                'video': 'Video',
+                'location': 'Location',
+                'feeling': 'Feeling',
+                'like': 'Like',
+                'comment': 'Comment',
+                'share': 'Share',
+                'viewAll': 'View All',
+                'create': 'Create',
+                'discover': 'Discover',
+                'accept': 'Accept',
+                'decline': 'Decline',
+                'seeMore': 'See More',
+                'notificationsTitle': 'Notifications',
+                'viewAllNotifications': 'View All Notifications',
+                'newPostTitle': 'Create New Post',
+                'post': 'Post',
+                'writeComment': 'Write a comment...',
+                'reply': 'Reply'
+            }
+        };
+        
+        // Change language function
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            document.documentElement.lang = lang;
+            document.title = translations[lang]['title'];
+            
+            // Update language selector display
+            const languageToggle = document.getElementById('language-toggle');
+            if (lang === 'nl') {
+                document.getElementById('current-flag').style.backgroundImage = "url('https://flagcdn.com/nl.svg')";
+                document.getElementById('current-lang').textContent = 'NL';
+            } else if (lang === 'be') {
+                document.getElementById('current-flag').style.backgroundImage = "url('https://flagcdn.com/be.svg')";
+                document.getElementById('current-lang').textContent = 'BE';
+            } else {
+                document.getElementById('current-flag').style.backgroundImage = "url('https://flagcdn.com/gb.svg')";
+                document.getElementById('current-lang').textContent = 'EN';
+            }
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update placeholders
+            const textareas = document.querySelectorAll('textarea[placeholder], input[placeholder]');
+            textareas.forEach(textarea => {
+                const placeholder = textarea.getAttribute('placeholder');
+                if (translations[lang][placeholder]) {
+                    textarea.setAttribute('placeholder', translations[lang][placeholder]);
+                }
+            });
+            
+            // Close language menu
+            document.getElementById('language-menu').classList.add('hidden');
+        }
+        
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+        
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+        
+        // Toggle new post form
+        function toggleNewPostForm() {
+            document.getElementById('new-post-form').classList.toggle('hidden');
+        }
+        
+        // Toggle notifications dropdown
+        function toggleNotifications() {
+            document.getElementById('notification-dropdown').classList.toggle('hidden');
+        }
+        
+        // Toggle profile menu
+        function toggleProfileMenu() {
+            document.getElementById('profile-menu').classList.toggle('hidden');
+        }
+        
+        // Toggle comments section
+        function toggleComments(button) {
+            const post = button.closest('.glassmorphism');
+            const commentsSection = post.querySelector('.bg-gray-50');
+            commentsSection.classList.toggle('hidden');
+        }
+        
+        // Like a post
+        function likePost(button) {
+            const likeCount = button.querySelector('i');
+            const isLiked = likeCount.classList.contains('text-blue-500');
+            
+            if (isLiked) {
+                likeCount.classList.remove('text-blue-500');
+                likeCount.classList.add('text-gray-500');
+            } else {
+                likeCount.classList.remove('text-gray-500');
+                likeCount.classList.add('text-blue-500');
+            }
+        }
+        
+        // Accept friend request
+        function acceptFriendRequest(button) {
+            const notificationItem = button.closest('.flex.items-start');
+            notificationItem.remove();
+            updateNotificationCount(-1);
+        }
+        
+        // Decline friend request
+        function declineFriendRequest(button) {
+            const notificationItem = button.closest('.flex.items-start');
+            notificationItem.remove();
+            updateNotificationCount(-1);
+        }
+        
+        // Update notification count
+        function updateNotificationCount(change) {
+            const notificationBadge = document.getElementById('notification-count');
+            let currentCount = parseInt(notificationBadge.textContent);
+            currentCount += change;
+            notificationBadge.textContent = currentCount;
+            
+            // Update mobile badge
+            const mobileBadges = document.querySelectorAll('.notification-badge:not(#notification-count)');
+            mobileBadges.forEach(badge => {
+                badge.textContent = currentCount;
+            });
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('theme-toggle-mobile').addEventListener('click', toggleDarkMode);
+            
+            // Mobile menu
+            document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+            document.getElementById('close-mobile-menu').addEventListener('click', toggleMobileMenu);
+            
+            // New post
+            document.getElementById('new-post-button').addEventListener('click', toggleNewPostForm);
+            document.getElementById('close-new-post').addEventListener('click', toggleNewPostForm);
+            
+            // Notifications
+            document.getElementById('notification-button').addEventListener('click', toggleNotifications);
+            
+            // Profile menu
+            document.getElementById('profile-menu-button').addEventListener('click', toggleProfileMenu);
+            
+            // Close menus when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('#language-toggle') && !event.target.closest('#language-menu')) {
+                    document.getElementById('language-menu').classList.add('hidden');
+                }
+                
+                if (!event.target.closest('#notification-button') && !event.target.closest('#notification-dropdown')) {
+                    document.getElementById('notification-dropdown').classList.add('hidden');
+                }
+                
+                if (!event.target.closest('#profile-menu-button') && !event.target.closest('#profile-menu')) {
+                    document.getElementById('profile-menu').classList.add('hidden');
+                }
+            });
+            
+            // Post interactions
+            document.querySelectorAll('.post-like').forEach(button => {
+                button.addEventListener('click', function() {
+                    likePost(this);
+                });
+            });
+            
+            document.querySelectorAll('.post-comment').forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleComments(this);
+                });
+            });
+            
+            // Friend requests
+            document.querySelectorAll('.accept-friend').forEach(button => {
+                button.addEventListener('click', function() {
+                    acceptFriendRequest(this);
+                });
+            });
+            
+            document.querySelectorAll('.decline-friend').forEach(button => {
+                button.addEventListener('click', function() {
+                    declineFriendRequest(this);
+                });
+            });
+            
+            // File inputs for post creation
+            document.querySelectorAll('input[type="file"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    const preview = document.getElementById('post-preview');
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.innerHTML = '';
+                            if (this.files[0].type.includes('image')) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.classList.add('w-full', 'h-48', 'object-cover', 'rounded-lg', 'mb-2');
+                                preview.appendChild(img);
+                            } else if (this.files[0].type.includes('video')) {
+                                const video = document.createElement('video');
+                                video.src = e.target.result;
+                                video.controls = true;
+                                video.classList.add('w-full', 'h-48', 'object-cover', 'rounded-lg', 'mb-2');
+                                preview.appendChild(video);
+                            }
+                            preview.classList.remove('hidden');
+                        }.bind(this);
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            });
+            
+            // Check for saved theme preference
+            if (localStorage.getItem('color-theme') === 'dark' || (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            // Initialize language
+            changeLanguage('nl');
+            
+            // Sample notifications for dropdown
+            const notificationList = document.getElementById('notification-list');
+            const sampleNotifications = [
+                {
+                    icon: 'fa-user-plus',
+                    color: 'bg-primary-100 dark:bg-primary-900 text-primary-500',
+                    text: '<span class="font-semibold">Robert Wilson</span> heeft je een vriendschapsverzoek gestuurd',
+                    actions: true
+                },
+                {
+                    icon: 'fa-comment',
+                    color: 'bg-blue-100 dark:bg-blue-900 text-blue-500',
+                    text: '<span class="font-semibold">Emily Davis</span> heeft gereageerd op je bericht',
+                    subtext: '"Ziet er geweldig uit! In welke galerie was dit?"'
+                },
+                {
+                    icon: 'fa-thumbs-up',
+                    color: 'bg-green-100 dark:bg-green-900 text-green-500',
+                    text: '<span class="font-semibold">Michael Brown</span> en <span class="font-semibold">3 anderen</span> vinden je foto leuk'
+                },
+                {
+                    icon: 'fa-users',
+                    color: 'bg-purple-100 dark:bg-purple-900 text-purple-500',
+                    text: '<span class="font-semibold">Tech Enthousiastelingen</span> heeft een nieuw evenement gepland'
+                }
+            ];
+            
+            sampleNotifications.forEach(notification => {
+                const notificationElement = document.createElement('div');
+                notificationElement.classList.add('px-4', 'py-3', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'border-b', 'dark:border-gray-700');
+                
+                let html = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full ${notification.color} flex items-center justify-center">
+                            <i class="fas ${notification.icon} text-sm"></i>
+                        </div>
+                        <div class="text-sm flex-1">
+                            <p>${notification.text}</p>
+                            ${notification.subtext ? `<p class="text-gray-500 dark:text-gray-400 text-xs mt-1">${notification.subtext}</p>` : ''}
+                `;
+                
+                if (notification.actions) {
+                    html += `
+                            <div class="flex space-x-2 mt-2">
+                                <button class="accept-friend text-xs bg-primary-500 hover:bg-primary-600 text-white px-2 py-1 rounded">Accepteren</button>
+                                <button class="decline-friend text-xs bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-2 py-1 rounded">Weigeren</button>
+                            </div>
+                    `;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                notificationElement.innerHTML = html;
+                notificationList.appendChild(notificationElement);
+            });
+            
+            // Add event listeners to dynamically added buttons
+            notificationList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('accept-friend')) {
+                    acceptFriendRequest(e.target);
+                } else if (e.target.classList.contains('decline-friend')) {
+                    declineFriendRequest(e.target);
+                }
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=SwibbiAdmin/swibbi-new" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
